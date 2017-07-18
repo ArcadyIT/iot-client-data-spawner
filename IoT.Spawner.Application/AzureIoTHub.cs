@@ -3,10 +3,13 @@ using Microsoft.Azure.Devices.Common.Exceptions;
 using Microsoft.ServiceBus.Messaging;
 using Newtonsoft.Json;
 using System;
+using System.Collections.Generic;
+using System.Configuration;
 using System.Linq;
 using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
+using IoT.Spawner.Application.Models;
 using Devices = Microsoft.Azure.Devices;
 
 namespace IoT.Spawner.Application
@@ -17,19 +20,19 @@ namespace IoT.Spawner.Application
         /// Please replace with correct connection string value
         /// The connection string could be got from Azure IoT Hub -> Shared access policies -> iothubowner -> Connection String:
         /// </summary>
-        private const string connectionString = "HostName=$iotHubUri$;SharedAccessKeyName=$accessKeyName$;SharedAccessKey=$accessKey$";
+        private static readonly string ConnectionString = ConfigurationManager.ConnectionStrings["ConnectionString"].ConnectionString;
 
         /// <summary>
         /// Please replace with correct device connection string
         /// The device connect string could be got from Azure IoT Hub -> Devices -> {your device name } -> Connection string
         /// </summary>
-        private const string deviceConnectionString = "HostName=$iotHubUri$;DeviceId=$deviceId$;SharedAccessKey=$deviceKey$";
+        private static readonly string DeviceConnectionString = ConfigurationManager.ConnectionStrings["DeviceConnectionString"].ConnectionString;
 
-        private const string iotHubD2cEndpoint = "messages/events";
+        private const string IotHubD2CEndpoint = "messages/events";
 
         public static async Task<string> CreateDeviceIdentityAsync(string deviceName)
         {
-            var registryManager = Devices.RegistryManager.CreateFromConnectionString(connectionString);
+            var registryManager = Devices.RegistryManager.CreateFromConnectionString(ConnectionString);
             Devices.Device device;
             try
             {
@@ -44,33 +47,36 @@ namespace IoT.Spawner.Application
 
         public static async Task SendDeviceToCloudMessageAsync(CancellationToken cancelToken)
         {
-            var deviceClient = DeviceClient.CreateFromConnectionString(deviceConnectionString);
-
-            double avgWindSpeed = 10; // m/s
-            var rand = new Random();
+            var deviceClient = DeviceClient.CreateFromConnectionString(DeviceConnectionString);
 
             while (true)
             {
                 if (cancelToken.IsCancellationRequested)
                     break;
-
-                var currentWindSpeed = avgWindSpeed + rand.NextDouble() * 4 - 2;
-
-                var telemetryDataPoint = new
+                
+                var data = new List<SensorReading>
                 {
-                    windSpeed = currentWindSpeed
+                    DataSpawner.GenerateRandomTemperature(),
+                    DataSpawner.GenerateRandomLux(),
+                    DataSpawner.GenerateRandomDecibels(),
+                    DataSpawner.GenerateRandomHumidity()
                 };
-                var messageString = JsonConvert.SerializeObject(telemetryDataPoint);
-                var message = new Message(Encoding.ASCII.GetBytes(messageString));
-                await deviceClient.SendEventAsync(message);
-                Console.WriteLine("{0} > Sending message: {1}", DateTime.Now, messageString);
-                await Task.Delay(500);
+
+                foreach (var reading in data)
+                {
+                    var messageString = JsonConvert.SerializeObject(reading);
+                    var message = new Message(Encoding.ASCII.GetBytes(messageString));
+                    await deviceClient.SendEventAsync(message);
+                    Console.WriteLine("{0} > Sending message: {1}", DateTime.Now, messageString);
+                }
+
+                await Task.Delay(500, cancelToken);
             }
         }
 
         public static async Task<string> ReceiveCloudToDeviceMessageAsync()
         {
-            var deviceClient = DeviceClient.CreateFromConnectionString(deviceConnectionString);
+            var deviceClient = DeviceClient.CreateFromConnectionString(DeviceConnectionString);
 
             while (true)
             {
@@ -89,10 +95,10 @@ namespace IoT.Spawner.Application
 
         public static async Task ReceiveMessagesFromDeviceAsync(CancellationToken cancelToken)
         {
-            var eventHubClient = EventHubClient.CreateFromConnectionString(connectionString, iotHubD2cEndpoint);
-            var d2cPartitions = eventHubClient.GetRuntimeInformation().PartitionIds;
+            var eventHubClient = EventHubClient.CreateFromConnectionString(ConnectionString, IotHubD2CEndpoint);
+            var d2CPartitions = eventHubClient.GetRuntimeInformation().PartitionIds;
 
-            await Task.WhenAll(d2cPartitions.Select(partition => ReceiveMessagesFromDeviceAsync(eventHubClient, partition, cancelToken)));
+            await Task.WhenAll(d2CPartitions.Select(partition => ReceiveMessagesFromDeviceAsync(eventHubClient, partition, cancelToken)));
         }
 
         private static async Task ReceiveMessagesFromDeviceAsync(EventHubClient eventHubClient, string partition, CancellationToken ct)
