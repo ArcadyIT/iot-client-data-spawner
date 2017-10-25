@@ -1,8 +1,10 @@
-﻿namespace IoT.Spawner.Application.Models
+namespace IoT.Spawner.Application.Models
 {
     public class SensorReading
     {
-        public SensorDataTypeEnum Type { get; set; }
-        public string Value { get; set; }
+        public double Temperature { get; set; }
+        public double Lumen { get; set; }
+        public double Decibels { get; set; }
+        public double Humidity { get; set; }
     }
 }

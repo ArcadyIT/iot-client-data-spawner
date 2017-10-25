@@ -30,14 +30,18 @@ namespace IoT.Spawner.Application
             {
                 e.Cancel = true;
                 tokenSource.Cancel();
-                Console.WriteLine("Existing ...");
+                Console.WriteLine("Exiting...");
             };
             Console.WriteLine("Press CTRL+C to exit");
 
-            Task.WaitAll(
-                AzureIoTHub.SendDeviceToCloudMessageAsync(tokenSource.Token)
-//                AzureIoTHub.ReceiveMessagesFromDeviceAsync(tokenSource.Token)
-                );
+            try
+            {
+                Task.WaitAll(AzureIoTHub.SendDeviceToCloudMessageAsync(tokenSource.Token));   
+            }
+            catch
+            {
+                return;
+            }
         }
     }
 }

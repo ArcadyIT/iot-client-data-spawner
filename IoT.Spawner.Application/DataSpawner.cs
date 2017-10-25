@@ -6,48 +6,20 @@ namespace IoT.Spawner.Application
     public class DataSpawner
     {
         private static readonly Random Random = new Random();
-
-        public static SensorReading GenerateRandomTemperature()
+        
+        private static double GetRandomDouble(double start, double end)
         {
-            var data = Random.Next(-40, 50);
-
-            return new SensorReading
-            {
-                Type = SensorDataTypeEnum.TemperatureCelsius,
-                Value = data.ToString()
-            };
+            return (Random.NextDouble() * Math.Abs(end - start)) + start;
         }
 
-        public static SensorReading GenerateRandomHumidity()
+        public static SensorReading GenerateRandomSensorReadingMessage()
         {
-            var data = Random.Next(70, 90);
-
             return new SensorReading
             {
-                Type = SensorDataTypeEnum.Humidity,
-                Value = data.ToString()
-            };
-        }
-
-        public static SensorReading GenerateRandomLux()
-        {
-            var data = Random.Next(0, 100_000);
-
-            return new SensorReading
-            {
-                Type = SensorDataTypeEnum.Lux,
-                Value = data.ToString()
-            };
-        }
-
-        public static SensorReading GenerateRandomDecibels()
-        {
-            var data = Random.Next(0, 150);
-
-            return new SensorReading
-            {
-                Type = SensorDataTypeEnum.Decibel,
-                Value = data.ToString()
+                Temperature = GetRandomDouble(-40, 50),
+                Lumen = GetRandomDouble(70, 90),
+                Decibels = GetRandomDouble(0, 100_000),
+                Humidity = GetRandomDouble(0, 150),
             };
         }
     }

@@ -154,11 +154,11 @@
   <ItemGroup>
     <Compile Include="DataSpawner.cs" />
     <Compile Include="Models\SensorDataTypeEnum.cs" />
-    <Compile Include="Models\SensorReading.cs" />
     <None Include="packages.config" />
     <None Include="app.config">
       <SubType>Designer</SubType>
     </None>
+    <Compile Include="Models\SensorReading.cs" />
     <Compile Include="Program.cs" />
     <Compile Include="AzureIoTHub.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />

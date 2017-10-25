@@ -54,23 +54,16 @@ namespace IoT.Spawner.Application
                 if (cancelToken.IsCancellationRequested)
                     break;
                 
-                var data = new List<SensorReading>
-                {
-                    DataSpawner.GenerateRandomTemperature(),
-                    DataSpawner.GenerateRandomLux(),
-                    DataSpawner.GenerateRandomDecibels(),
-                    DataSpawner.GenerateRandomHumidity()
-                };
+                // Generate a random set of sensor readings
+                var sensorReading = DataSpawner.GenerateRandomSensorReadingMessage();
 
-                foreach (var reading in data)
-                {
-                    var messageString = JsonConvert.SerializeObject(reading);
-                    var message = new Message(Encoding.ASCII.GetBytes(messageString));
-                    await deviceClient.SendEventAsync(message);
-                    Console.WriteLine("{0} > Sending message: {1}", DateTime.Now, messageString);
-                }
+                // Convert to a json message
+                var messageString = JsonConvert.SerializeObject(sensorReading);
+                var message = new Message(Encoding.ASCII.GetBytes(messageString));
+                await deviceClient.SendEventAsync(message);
+                Console.WriteLine("{0} > Sending message: {1}", DateTime.Now, messageString);
 
-                await Task.Delay(500, cancelToken);
+                await Task.Delay(1000, cancelToken);
             }
         }
 
