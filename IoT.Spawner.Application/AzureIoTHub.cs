@@ -16,6 +16,8 @@ namespace IoT.Spawner.Application
 {
     public static class AzureIoTHub
     {
+        public const int Delay = 12000;
+
         /// <summary>
         /// Please replace with correct connection string value
         /// The connection string could be got from Azure IoT Hub -> Shared access policies -> iothubowner -> Connection String:
@@ -53,7 +55,7 @@ namespace IoT.Spawner.Application
             {
                 if (cancelToken.IsCancellationRequested)
                     break;
-                
+
                 // Generate a random set of sensor readings
                 var sensorReading = DataSpawner.GenerateRandomSensorReadingMessage();
 
@@ -63,7 +65,7 @@ namespace IoT.Spawner.Application
                 await deviceClient.SendEventAsync(message);
                 Console.WriteLine("{0} > Sending message: {1}", DateTime.Now, messageString);
 
-                await Task.Delay(1000, cancelToken);
+                await Task.Delay(Delay, cancelToken);
             }
         }
 
