@@ -17,7 +17,7 @@ namespace IoT.Spawner.Application
             return new SensorReading
             {
                 Temperature = GetRandomDouble(-40, 50),
-                Lumen = GetRandomDouble(70, 90),
+                Lumen = GetRandomDouble(70, 89),
                 Decibels = GetRandomDouble(0, 100_000),
                 Humidity = GetRandomDouble(0, 150),
             };
