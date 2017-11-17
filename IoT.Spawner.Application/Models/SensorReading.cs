@@ -8,13 +8,13 @@ namespace IoT.Spawner.Application.Models
 
         public Guid DeviceId { get; set; }
 
-        public double Temperature { get; set; }
+        public int Temperature { get; set; }
 
-        public double LightIntensity { get; set; }
+        public int LightIntensity { get; set; }
 
-        public double SoundLevel { get; set; }
+        public int SoundLevel { get; set; }
 
-        public double Humidity { get; set; }
+        public int Humidity { get; set; }
 
     }
 }

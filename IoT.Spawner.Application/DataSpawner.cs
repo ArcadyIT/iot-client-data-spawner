@@ -13,16 +13,21 @@ namespace IoT.Spawner.Application
             return (Random.NextDouble() * Math.Abs(end - start)) + start;
         }
 
+        private static int GetRandomInt(int start, int end)
+        {
+            return (Random.Next(start, end));
+        }
+
         public static SensorReading GenerateRandomSensorReadingMessage()
         {
             return new SensorReading
             {
                 SensorReadingId = Guid.NewGuid(),
                 DeviceId = new Guid(ConfigurationManager.AppSettings["DeviceId"]),
-                Temperature = GetRandomDouble(-40, 50),
-                LightIntensity = GetRandomDouble(70, 90),
-                SoundLevel = GetRandomDouble(0, 120),
-                Humidity = GetRandomDouble(0, 150)
+                Temperature = GetRandomInt(-40, 50),
+                LightIntensity = GetRandomInt(70, 90),
+                SoundLevel = GetRandomInt(0, 120),
+                Humidity = GetRandomInt(0, 150)
             };
         }
     }
